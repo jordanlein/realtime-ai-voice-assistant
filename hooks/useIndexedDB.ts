@@ -3,8 +3,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { SavedConversation } from '../types';
 
 const DB_NAME = 'VoiceAssistantDB';
-const STORE_NAME = 'conversations';
-const DB_VERSION = 1;
+const CONVERSATIONS_STORE_NAME = 'conversations';
+const API_KEYS_STORE_NAME = 'apiKeys';
+const DB_VERSION = 2; // Version 2 includes the apiKeys store
 
 let db: IDBDatabase | null = null;
 
@@ -28,8 +29,11 @@ const initDB = (): Promise<IDBDatabase> => {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      if (!db.objectStoreNames.contains(CONVERSATIONS_STORE_NAME)) {
+        db.createObjectStore(CONVERSATIONS_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains(API_KEYS_STORE_NAME)) {
+        db.createObjectStore(API_KEYS_STORE_NAME, { keyPath: 'id' });
       }
     };
   });
@@ -40,8 +44,8 @@ export const useIndexedDB = () => {
 
   const getConversations = useCallback(async () => {
     const db = await initDB();
-    const transaction = db.transaction(STORE_NAME, 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
+    const transaction = db.transaction(CONVERSATIONS_STORE_NAME, 'readonly');
+    const store = transaction.objectStore(CONVERSATIONS_STORE_NAME);
     const request = store.getAll();
 
     return new Promise<SavedConversation[]>((resolve, reject) => {
@@ -63,8 +67,8 @@ export const useIndexedDB = () => {
 
   const addConversation = async (conversation: Omit<SavedConversation, 'id' | 'userAudioUrl' | 'assistantAudioUrl'> & { userAudio?: Blob, assistantAudio?: Blob }) => {
     const db = await initDB();
-    const transaction = db.transaction(STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
+    const transaction = db.transaction(CONVERSATIONS_STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(CONVERSATIONS_STORE_NAME);
     const request = store.add(conversation);
 
     return new Promise<void>((resolve, reject) => {

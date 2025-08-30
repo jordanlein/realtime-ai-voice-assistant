@@ -1,12 +1,14 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { ConversationStatus, TranscriptEntry, OpenAIVoice, SavedConversation } from './types';
+import { ConversationStatus, TranscriptEntry, OpenAIVoice, SavedConversation, ApiKeys } from './types';
 import { AVAILABLE_VOICES } from './constants';
 import { useIndexedDB } from './hooks/useIndexedDB';
 import { getClientToken } from './services/openaiService';
 import { webSearch } from './services/webSearchService';
+import * as apiKeyService from './services/apiKeyService';
 import VoiceSelector from './components/VoiceSelector';
 import ConversationView from './components/ConversationView';
 import SavedConversations from './components/SavedConversations';
+import ApiKeyModal from './components/ApiKeyModal';
 import { RealtimeAgent, RealtimeSession } from '@openai/agents-realtime';
 
 const App: React.FC = () => {
@@ -14,6 +16,8 @@ const App: React.FC = () => {
   const [selectedVoice, setSelectedVoice] = useState<OpenAIVoice>(AVAILABLE_VOICES[0]);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [apiKeys, setApiKeys] = useState<ApiKeys | null>(null);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   
   const { conversations, addConversation } = useIndexedDB();
 
@@ -45,6 +49,24 @@ const App: React.FC = () => {
     };
   };
   
+  useEffect(() => {
+    const checkApiKeys = async () => {
+      const keys = await apiKeyService.getApiKeys();
+      if (keys) {
+        setApiKeys(keys);
+      } else {
+        setShowApiKeyModal(true);
+      }
+    };
+    checkApiKeys();
+  }, []);
+
+  const handleSaveApiKeys = async (keys: ApiKeys) => {
+    await apiKeyService.saveApiKeys(keys);
+    setApiKeys(keys);
+    setShowApiKeyModal(false);
+  };
+
   // Clean up session on component unmount
   useEffect(() => {
     return () => {
@@ -94,7 +116,13 @@ const App: React.FC = () => {
         return;
       }
       
-      const token = await getClientToken();
+      if (!apiKeys) {
+        setError('API keys are not set. Please provide them.');
+        setStatus('idle');
+        return;
+      }
+
+      const token = await getClientToken(apiKeys.openai);
       console.log('Token received:', token ? 'Yes' : 'No');
 
       console.log('Creating agent...');
@@ -378,7 +406,10 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
             });
             
             // Perform the web search
-            const searchResult = await webSearch(query);
+            if (!apiKeys) {
+              throw new Error('API keys are not available for web search.');
+            }
+            const searchResult = await webSearch(query, apiKeys.google, apiKeys.searchEngineId);
             
             console.log('Web search completed, result:', searchResult);
             
@@ -615,7 +646,10 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
               console.log('WebSocket web search requested for:', query);
               
               // Perform the web search
-              const searchResult = await webSearch(query);
+              if (!apiKeys) {
+                throw new Error('API keys are not available for web search.');
+              }
+              const searchResult = await webSearch(query, apiKeys.google, apiKeys.searchEngineId);
               
               // Approve the tool call with the result
               await (websocketSession as any).approveToolCall(approvalRequest.approvalItem.id, searchResult);
@@ -719,6 +753,7 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+        {showApiKeyModal && <ApiKeyModal onSave={handleSaveApiKeys} />}
         <header className="text-center mb-8">
             <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300">
                 Realtime AI Voice Assistant

@@ -1,15 +1,13 @@
 // This function uses your main OpenAI API key to securely generate a short-lived
 // client token for the browser to use. This is the recommended approach from the
 // OpenAI Agents SDK documentation.
-export const getClientToken = async () => {
-    const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-
-    if (!API_KEY || API_KEY === 'your-openai-api-key-here') {
-      throw new Error('OpenAI API key is missing. Please add it to your .env file.');
+export const getClientToken = async (apiKey: string) => {
+    if (!apiKey) {
+      throw new Error('OpenAI API key is missing.');
     }
     
     // Validate API key format
-    if (!API_KEY.startsWith('sk-')) {
+    if (!apiKey.startsWith('sk-')) {
       throw new Error('Invalid API key format. API key should start with "sk-"');
     }
 
@@ -17,7 +15,7 @@ export const getClientToken = async () => {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`,
+            "Authorization": `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
             "session": {

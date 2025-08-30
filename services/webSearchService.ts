@@ -1,9 +1,6 @@
 // Web search service for the Realtime API using Google Custom Search
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
-const GOOGLE_CSE_ID = import.meta.env.VITE_GOOGLE_CSE_ID;
-
-export const webSearch = async (query: string): Promise<string> => {
-  if (!GOOGLE_API_KEY || !GOOGLE_CSE_ID || GOOGLE_API_KEY === 'your-google-cloud-api-key-here' || GOOGLE_CSE_ID === 'your-google-cse-id-here') {
+export const webSearch = async (query: string, apiKey: string, cseId: string): Promise<string> => {
+  if (!apiKey || !cseId) {
     console.warn('Google API Key or CSE ID is missing. The web search tool will not be available.');
     return "The web search tool is not configured. Please ask the user to configure the Google API Key and CSE ID.";
   }
@@ -11,7 +8,7 @@ export const webSearch = async (query: string): Promise<string> => {
   try {
     console.log('Performing Google Custom Search for:', query);
 
-    const url = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_CSE_ID}&q=${encodeURIComponent(query)}&num=3`;
+    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cseId}&q=${encodeURIComponent(query)}&num=3`;
 
     const response = await fetch(url);
 

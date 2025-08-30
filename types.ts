@@ -16,5 +16,11 @@ export interface SavedConversation {
   assistantAudioUrl?: string;
 }
 
+export interface ApiKeys {
+    openai: string;
+    google: string;
+    searchEngineId: string;
+}
+
 // Based on OpenAI Realtime API documentation
 export type OpenAIVoice = "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer" | "cedar" | "marin";
