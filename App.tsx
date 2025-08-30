@@ -248,7 +248,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       // Listen for transport events
       (session as any).on('transport_event', (event: any) => {
         console.log('Transport event:', event);
-        hasReceivedAnyEvent = true;
         
         if (event.type === 'connection_change') {
           console.log("Transport connection status:", event.status);
@@ -274,7 +273,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       // Listen for item updates (conversation messages)
       (session as any).on('item_update', (item: any) => {
         console.log('Item update:', item);
-        hasReceivedAnyEvent = true;
         
         if (item.type === 'message' && item.content) {
           const speaker = item.role === 'user' ? 'user' : 'ai';
@@ -300,7 +298,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       // Listen for history updates (transcript)
       (session as any).on('history_updated', (history: any) => {
         console.log('History updated:', history);
-        hasReceivedAnyEvent = true;
         
         // Process all items in history
         if (history && history.length > 0) {
@@ -331,13 +328,11 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       // Listen for all events to debug what's happening
       (session as any).on('*', (event: any) => {
         console.log('All session event:', event);
-        hasReceivedAnyEvent = true;
       });
       
       // Listen for specific transcript events
       (session as any).on('response.audio_transcript.delta', (event: any) => {
         console.log('Response audio transcript delta:', event);
-        hasReceivedAnyEvent = true;
         if (event.delta && event.delta.trim()) {
           handleTranscript({ 
             text: event.delta, 
@@ -349,7 +344,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       
       (session as any).on('response.audio_transcript.done', (event: any) => {
         console.log('Response audio transcript done:', event);
-        hasReceivedAnyEvent = true;
         if (event.transcript && event.transcript.trim()) {
           handleTranscript({ 
             text: event.transcript, 
@@ -361,7 +355,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       
       (session as any).on('conversation.item.input_audio_transcription.delta', (event: any) => {
         console.log('Input audio transcription delta:', event);
-        hasReceivedAnyEvent = true;
         if (event.delta && event.delta.trim()) {
           handleTranscript({ 
             text: event.delta, 
@@ -376,7 +369,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       
       (session as any).on('conversation.item.input_audio_transcription.completed', (event: any) => {
         console.log('Input audio transcription completed:', event);
-        hasReceivedAnyEvent = true;
         if (event.transcript && event.transcript.trim()) {
           handleTranscript({ 
             text: event.transcript, 
@@ -389,7 +381,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       // Listen for tool approval requests
       (session as any).on('tool_approval_requested', async (context: any, agent: any, approvalRequest: any) => {
         console.log('Tool approval requested:', approvalRequest);
-        hasReceivedAnyEvent = true;
         
         if (approvalRequest.type === 'function_approval' && approvalRequest.tool.name === 'web_search') {
           try {
@@ -494,7 +485,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
         // Set up the same event listeners for WebSocket session
         (websocketSession as any).on('transport_event', (event: any) => {
           console.log('WebSocket transport event:', event);
-          hasReceivedAnyEvent = true;
           
           if (event.type === 'connection_change') {
             console.log("WebSocket transport connection status:", event.status);
@@ -519,7 +509,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
         
         (websocketSession as any).on('connection_change', (status: any) => {
           console.log("WebSocket connection status changed:", status);
-          hasReceivedConnectionEvent = true;
           if (status === 'connected') {
             console.log("WebSocket session connected!");
             clearTimeout(connectionTimeout);
@@ -535,7 +524,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
         
         (websocketSession as any).on('item_update', (item: any) => {
           console.log('WebSocket item update:', item);
-          hasReceivedAnyEvent = true;
           
           if (item.type === 'message' && item.content) {
             const speaker = item.role === 'user' ? 'user' : 'ai';
@@ -561,7 +549,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
         // Add the same transcript event listeners for WebSocket
         (websocketSession as any).on('response.audio_transcript.delta', (event: any) => {
           console.log('WebSocket response audio transcript delta:', event);
-          hasReceivedAnyEvent = true;
           if (event.delta && event.delta.trim()) {
             handleTranscript({ 
               text: event.delta, 
@@ -573,7 +560,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
         
         (websocketSession as any).on('response.audio_transcript.done', (event: any) => {
           console.log('WebSocket response audio transcript done:', event);
-          hasReceivedAnyEvent = true;
           if (event.transcript && event.transcript.trim()) {
             handleTranscript({ 
               text: event.transcript, 
@@ -585,7 +571,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
         
         (websocketSession as any).on('conversation.item.input_audio_transcription.delta', (event: any) => {
           console.log('WebSocket input audio transcription delta:', event);
-          hasReceivedAnyEvent = true;
           if (event.delta && event.delta.trim()) {
             handleTranscript({ 
               text: event.delta, 
@@ -597,7 +582,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
         
         (websocketSession as any).on('conversation.item.input_audio_transcription.completed', (event: any) => {
           console.log('WebSocket input audio transcription completed:', event);
-          hasReceivedAnyEvent = true;
           if (event.transcript && event.transcript.trim()) {
             handleTranscript({ 
               text: event.transcript, 
