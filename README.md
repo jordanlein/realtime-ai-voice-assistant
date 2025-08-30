@@ -39,39 +39,20 @@ cd realtime-ai-voice-assistant
 npm install
 ```
 
-### 4. Set Up Environment Variables
+### 4. Run the Application
 
-You'll need to configure your API keys in an environment file.
-
-1.  Create a new file named `.env` in the root of the project by copying the example file:
-    ```bash
-    cp .env.example .env
-    ```
-2.  Open the `.env` file and add your API keys and configuration values:
-
-    ```env
-    # Your OpenAI API Key
-    VITE_OPENAI_API_KEY="sk-..."
-
-    # Your Google Cloud API Key for the Custom Search API
-    VITE_GOOGLE_API_KEY="AIza..."
-
-    # Your Google Custom Search Engine ID
-    VITE_GOOGLE_CSE_ID="..."
-    ```
-
-*   `VITE_OPENAI_API_KEY`: Your API key from [OpenAI](https://platform.openai.com/api-keys).
-*   `VITE_GOOGLE_API_KEY` and `VITE_GOOGLE_CSE_ID`: To enable the web search feature, you need to set up a Google Custom Search Engine. For detailed instructions, please refer to the [Google CSE Setup Guide](./GOOGLE_CSE_SETUP.md).
-
-### 5. Run the Application
-
-Once your environment variables are set, you can start the development server:
+Once the dependencies are installed, you can start the development server:
 
 ```bash
 npm run dev
 ```
 
 The application will be available at `http://localhost:5173` (or another port if 5173 is busy).
+
+When you first launch the application, you will be prompted to enter your API keys for OpenAI and Google Custom Search. These are stored locally in your browser and are required for the application to function.
+
+*   **OpenAI API Key:** You can get your key from the [OpenAI API keys page](https://platform.openai.com/api-keys).
+*   **Google Cloud API Key & Custom Search Engine ID:** To enable the web search feature, you need to set up a Google Custom Search Engine. For detailed instructions, please refer to the [Google CSE Setup Guide](./GOOGLE_CSE_SETUP.md).
 
 ---
 

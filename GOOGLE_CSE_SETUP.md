@@ -15,28 +15,18 @@ To use Google Custom Search API with your voice assistant, you need to create a 
 1.  After creating the search engine, you will be taken to the dashboard.
 2.  In the "Basic" section of the "Setup" tab, find and copy the **"Search engine ID"**. It will be a long string of letters and numbers.
 
-## Step 3: Update Your `.env` File
+## Step 3: Use Your Keys in the Application
 
-1.  Open the `.env` file in the root of the project.
-2.  Paste your Search Engine ID as the value for `VITE_GOOGLE_CSE_ID`.
+When you first launch the voice assistant application, you will be prompted to enter your API keys.
 
-    ```
-    VITE_GOOGLE_CSE_ID="your-search-engine-id-here"
-    ```
+1.  **Google Cloud API Key:** This is the API key you created in your Google Cloud project with the "Custom Search API" enabled.
+2.  **Google Search Engine ID:** This is the ID you copied in Step 2.
+
+Enter these keys into the appropriate fields in the application. They will be saved locally in your browser for future use.
 
 ## Step 4: Test the Search
 
-Your voice assistant should now be able to search the entire web for current information.
-
-## API Key Information
-
-Your Google Cloud API Key is also stored in the `.env` file:
-
-```
-VITE_GOOGLE_API_KEY="your-google-cloud-api-key-here"
-```
-
-Make sure this key is correct and has the "Custom Search API" enabled in your Google Cloud project.
+Once the keys are saved in the application, your voice assistant will be able to search the entire web for current information.
 
 ### API Limits
 
