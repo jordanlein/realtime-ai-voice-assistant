@@ -176,6 +176,7 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
         transport: 'webrtc' as const, // Try WebRTC first, fallback to WebSocket if needed
         config: {
           audio: {
+            input: {},
             output: {
               voice: selectedVoice
             }
