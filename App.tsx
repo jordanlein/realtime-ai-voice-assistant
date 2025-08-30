@@ -703,7 +703,7 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       setError(`Failed to start: ${userFriendlyError}`);
       setStatus('idle');
     }
-  }, [selectedVoice, handleTranscript]);
+  }, [selectedVoice, handleTranscript, apiKeys]);
 
   const stopConversation = useCallback(async (isClosedByServer = false) => {
     console.log('stopConversation called, status:', status, 'isClosedByServer:', isClosedByServer);
