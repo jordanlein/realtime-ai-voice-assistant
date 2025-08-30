@@ -18,6 +18,8 @@ const App: React.FC = () => {
   const { conversations, addConversation } = useIndexedDB();
 
   const sessionRef = useRef<RealtimeSession | null>(null);
+  const userAudioChunks = useRef<Blob[]>([]);
+  const assistantAudioChunks = useRef<Blob[]>([]);
   
   // Function to get current date, time, and location context
   const getCurrentContext = () => {
@@ -50,22 +52,22 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const handleTranscript = useCallback((newTranscript: { text: string, final: boolean, speaker: 'user' | 'ai' }) => {
-    // Don't add empty transcript entries
-    if (!newTranscript.text || !newTranscript.text.trim()) {
+  const handleTranscript = useCallback((newEntry: { text: string, final: boolean, speaker: 'user' | 'ai' }) => {
+    if (!newEntry.text || !newEntry.text.trim()) {
       return;
     }
-    
+
     setTranscript(prev => {
-        const lastEntry = prev[prev.length - 1];
-        if (lastEntry && lastEntry.speaker === newTranscript.speaker && !lastEntry.isFinal) {
-            // Update the last entry if it's not final
-            const updatedEntry = { ...lastEntry, text: newTranscript.text.trim(), isFinal: newTranscript.final };
-            return [...prev.slice(0, -1), updatedEntry];
-        } else {
-            // Add a new entry only if there's actual content
-            return [...prev, { text: newTranscript.text.trim(), speaker: newTranscript.speaker, isFinal: newTranscript.final }];
-        }
+      const lastEntry = prev[prev.length - 1];
+
+      // If the last entry is from the same speaker and is not final, update it
+      if (lastEntry && lastEntry.speaker === newEntry.speaker && !lastEntry.isFinal) {
+        const updatedEntry = { ...lastEntry, text: newEntry.text, isFinal: newEntry.final };
+        return [...prev.slice(0, -1), updatedEntry];
+      }
+
+      // Otherwise, add a new entry
+      return [...prev, { text: newEntry.text, speaker: newEntry.speaker, isFinal: newEntry.final }];
     });
   }, []);
 
@@ -74,6 +76,8 @@ const App: React.FC = () => {
     setStatus('connecting');
     setError(null);
     setTranscript([]);
+    userAudioChunks.current = [];
+    assistantAudioChunks.current = [];
     
     try {
       console.log('Starting conversation...');
@@ -143,6 +147,12 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
         model: 'gpt-realtime',
         transport: 'webrtc' as const, // Try WebRTC first, fallback to WebSocket if needed
         config: {
+          turnDetection: {
+            type: 'semantic_vad',
+            eagerness: 'low',
+            silence_duration_ms: 2000, // Increase silence duration to 2 seconds
+            interruptResponse: false,
+          },
           audio: {
             output: {
               voice: selectedVoice
@@ -155,26 +165,30 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       const session = new RealtimeSession(agent, sessionConfig);
       sessionRef.current = session;
 
-      // Add a timeout to prevent infinite loading - increased to 30 seconds for Realtime API
-      let hasReceivedConnectionEvent = false;
-      let hasReceivedAnyEvent = false;
-      const connectionTimeout = setTimeout(() => {
-        if (!hasReceivedConnectionEvent && !hasReceivedAnyEvent) {
-          console.error('Connection timeout - session did not connect within 30 seconds');
-          console.log('Current transcript state:', transcript);
-          console.log('Session ref:', sessionRef.current);
-          setError('Connection timeout. Please try again. Check your microphone permissions and internet connection.');
-          setStatus('idle');
-          sessionRef.current = null;
-        }
-      }, 30000);
+      // Robust connection monitoring
+      let connectionTimeout: NodeJS.Timeout;
+      const startConnectionTimer = () => {
+        connectionTimeout = setTimeout(() => {
+          if (sessionRef.current?.transport?.state !== 'connected') {
+            console.error('Connection timeout - session did not connect within 30 seconds');
+            setError('Connection timeout. Please try again. Check your microphone permissions and internet connection.');
+            stopConversation(true);
+          }
+        }, 30000);
+      };
+
+      const resetConnectionTimer = () => {
+        clearTimeout(connectionTimeout);
+        startConnectionTimer();
+      };
+
+      startConnectionTimer();
 
       console.log('Setting up event listeners...');
       
       // Listen for connection status changes
       (session as any).on('connection_change', (status: any) => {
         console.log("Connection status changed:", status);
-        hasReceivedConnectionEvent = true;
         if (status === 'connected') {
           console.log("Session connected!");
           clearTimeout(connectionTimeout);
@@ -185,6 +199,7 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
           stopConversation(true);
         } else if (status === 'connecting') {
           console.log("Session is connecting...");
+          resetConnectionTimer();
         }
       });
       
@@ -192,11 +207,12 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
       (session as any).on('transport_event', (event: any) => {
         if (event.type === 'connection_change') {
           console.log("Transport connection status:", event.status);
-          hasReceivedConnectionEvent = true;
           if (event.status === 'connected') {
             console.log("Transport connected!");
             clearTimeout(connectionTimeout);
             setStatus('active');
+          } else {
+            resetConnectionTimer();
           }
         }
       });
@@ -325,6 +341,9 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
             speaker: 'user' 
           });
         }
+        if (event.audio) {
+          userAudioChunks.current.push(new Blob([event.audio], { type: 'audio/webm' }));
+        }
       });
       
       (session as any).on('conversation.item.input_audio_transcription.completed', (event: any) => {
@@ -372,6 +391,15 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
             const errorMessage = `Search failed: ${error.message}`;
             await (session as any).rejectToolCall(approvalRequest.approvalItem.id, errorMessage);
           }
+        }
+      });
+
+      // Listen for audio chunks
+      (session as any).on('audio', (audio: any) => {
+        console.log('Audio received:', audio);
+        if (audio.data) {
+          // Assuming this is assistant audio for now
+          assistantAudioChunks.current.push(new Blob([audio.data], { type: 'audio/webm' }));
         }
       });
 
@@ -667,16 +695,21 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
     setTranscript(finalTranscript);
 
     if (finalTranscript.length > 0) {
-        try {
-            const conversationToSave: Omit<SavedConversation, 'id' | 'userAudioUrl' | 'assistantAudioUrl'> = {
-                timestamp: new Date(),
-                transcript: finalTranscript,
-            };
-            await addConversation(conversationToSave);
-        } catch (saveError) {
-            console.error("Failed to save conversation:", saveError);
-            setError("Could not save the conversation to your local history.");
-        }
+      try {
+        const userAudioBlob = new Blob(userAudioChunks.current, { type: 'audio/webm' });
+        const assistantAudioBlob = new Blob(assistantAudioChunks.current, { type: 'audio/webm' });
+
+        const conversationToSave: Omit<SavedConversation, 'id' | 'userAudioUrl' | 'assistantAudioUrl'> = {
+            timestamp: new Date(),
+            transcript: finalTranscript,
+            userAudio: userAudioBlob.size > 0 ? userAudioBlob : undefined,
+            assistantAudio: assistantAudioBlob.size > 0 ? assistantAudioBlob : undefined,
+        };
+        await addConversation(conversationToSave);
+      } catch (saveError) {
+          console.error("Failed to save conversation:", saveError);
+          setError("Could not save the conversation to your local history.");
+      }
     }
     
     setStatus('idle');

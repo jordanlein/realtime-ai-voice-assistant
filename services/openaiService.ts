@@ -2,13 +2,10 @@
 // client token for the browser to use. This is the recommended approach from the
 // OpenAI Agents SDK documentation.
 export const getClientToken = async () => {
-    // --- IMPORTANT ---
-    // PASTE YOUR OPENAI API KEY HERE FOR LOCAL TESTING
-    // Do NOT commit this file with your key to a public repository.
-    const API_KEY = "your-openai-api-key-here";
+    const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-    if (!API_KEY) {
-      throw new Error('OpenAI API key is missing. Please add it to services/openaiService.ts');
+    if (!API_KEY || API_KEY === 'your-openai-api-key-here') {
+      throw new Error('OpenAI API key is missing. Please add it to your .env file.');
     }
     
     // Validate API key format

@@ -2,42 +2,46 @@
 
 To use Google Custom Search API with your voice assistant, you need to create a Custom Search Engine (CSE):
 
-## Step 1: Create a Custom Search Engine
+## Step 1: Create a Programmable Search Engine
 
-1. Go to https://cse.google.com/cse/
-2. Click "Add" to create a new search engine
-3. Enter any site in the "Sites to search" field (e.g., `www.google.com`)
-4. Give your search engine a name (e.g., "Voice Assistant Search")
-5. Click "Create"
+1.  Go to [https://programmablesearchengine.google.com/](https://programmablesearchengine.google.com/).
+2.  Click **"Add"** to create a new search engine.
+3.  Give your search engine a name (e.g., "AI Assistant Web Search").
+4.  **IMPORTANT**: Under "What to search?", select **"Search the entire web"**. This is crucial for the search tool to work correctly.
+5.  Click **"Create"**.
 
 ## Step 2: Get Your Search Engine ID
 
-1. After creating the CSE, click on it to edit
-2. Go to the "Setup" tab
-3. Copy the "Search engine ID" (it looks like: `012345678901234567890:abcdefghijk`)
+1.  After creating the search engine, you will be taken to the dashboard.
+2.  In the "Basic" section of the "Setup" tab, find and copy the **"Search engine ID"**. It will be a long string of letters and numbers.
 
-## Step 3: Update the Code
+## Step 3: Update Your `.env` File
 
-✅ **COMPLETED** - Your Search Engine ID has been configured in `services/webSearchService.ts`:
+1.  Open the `.env` file in the root of the project.
+2.  Paste your Search Engine ID as the value for `VITE_GOOGLE_CSE_ID`.
 
-```typescript
-const GOOGLE_CSE_ID = '24171e19c571d465a';
-```
+    ```
+    VITE_GOOGLE_CSE_ID="your-search-engine-id-here"
+    ```
 
 ## Step 4: Test the Search
 
-✅ **READY TO TEST** - The search should now work with real Google search results!
+Your voice assistant should now be able to search the entire web for current information.
 
-Your voice assistant can now search the web for current information during conversations.
+## API Key Information
 
-## Alternative: Use Google Programmable Search Engine
+Your Google Cloud API Key is also stored in the `.env` file:
 
-If you want to search the entire web (not just specific sites):
+```
+VITE_GOOGLE_API_KEY="your-google-cloud-api-key-here"
+```
 
-1. Go to https://programmablesearchengine.google.com/
-2. Create a new search engine
-3. Select "Search the entire web"
-4. Get the Search Engine ID and update the code
+Make sure this key is correct and has the "Custom Search API" enabled in your Google Cloud project.
+
+### API Limits
+
+*   **Free tier:** 100 searches per day.
+*   **Paid tier:** $5 per 1000 searches.
 
 ## API Limits
 
