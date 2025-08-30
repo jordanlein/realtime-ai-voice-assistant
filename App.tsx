@@ -176,14 +176,6 @@ Your goal is to be genuinely helpful while sounding natural and human-like in co
         transport: 'webrtc' as const, // Try WebRTC first, fallback to WebSocket if needed
         config: {
           audio: {
-            input: {
-              turnDetection: {
-                type: 'semantic_vad',
-                eagerness: 'low',
-                silence_duration_ms: 2000, // Increase silence duration to 2 seconds
-                interruptResponse: false,
-              },
-            },
             output: {
               voice: selectedVoice
             }
