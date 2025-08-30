@@ -33,25 +33,53 @@ git clone <https://github.com/jordanlein/realtime-ai-voice-assistant.git>
 cd realtime-ai-voice-assistant
 ```
 
-### 3. Install Dependencies
+### 3. Set Up Environment Variables
 
-```bash
-npm install
-```
+This project uses a backend server to securely handle your OpenAI API key.
 
-### 4. Run the Application
+1.  Navigate to the `server` directory:
+    ```bash
+    cd server
+    ```
+2.  Create a new file named `.env` and add your OpenAI API key:
+    ```env
+    # Your secret OpenAI API key
+    OPENAI_API_KEY="sk-..."
+    ```
 
-Once the dependencies are installed, you can start the development server:
+### 4. Install Dependencies
 
-```bash
-npm run dev
-```
+1.  **Frontend:** In the root directory, install the frontend dependencies:
+    ```bash
+    npm install
+    ```
+2.  **Backend:** In the `server` directory, install the backend dependencies:
+    ```bash
+    cd server
+    npm install
+    ```
 
-The application will be available at `http://localhost:5173` (or another port if 5173 is busy).
+### 5. Run the Application
 
-When you first launch the application, you will be prompted to enter your API keys for OpenAI and Google Custom Search. These are stored locally in your browser and are required for the application to function.
+You need to run both the backend and frontend servers in separate terminals.
 
-*   **OpenAI API Key:** You can get your key from the [OpenAI API keys page](https://platform.openai.com/api-keys).
+1.  **Start the Backend Server:**
+    ```bash
+    # From the root directory:
+    cd server
+    node index.js
+    ```
+    The backend will be running on `http://localhost:3001`.
+
+2.  **Start the Frontend Server:**
+    ```bash
+    # From the root directory:
+    npm run dev
+    ```
+    The application will be available at `http://localhost:5173`.
+
+When you first launch the application, you will be prompted to enter your **Google API keys** for the web search feature. The OpenAI API key is handled securely by the backend.
+
 *   **Google Cloud API Key & Custom Search Engine ID:** To enable the web search feature, you need to set up a Google Custom Search Engine. For detailed instructions, please refer to the [Google CSE Setup Guide](./GOOGLE_CSE_SETUP.md).
 
 ---
