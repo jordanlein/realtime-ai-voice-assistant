@@ -122,7 +122,7 @@ const App: React.FC = () => {
         return;
       }
 
-      const token = await getClientToken(apiKeys.openai);
+      const token = await getClientToken();
       console.log('Token received:', token ? 'Yes' : 'No');
 
       console.log('Creating agent...');
