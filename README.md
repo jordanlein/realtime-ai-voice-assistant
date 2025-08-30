@@ -29,7 +29,7 @@ Make sure you have [Node.js](https://nodejs.org/) installed on your system.
 ### 2. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone <https://github.com/jordanlein/realtime-ai-voice-assistant.git>
 cd realtime-ai-voice-assistant
 ```
 
