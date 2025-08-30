@@ -1,0 +1,7 @@
+{
+  "name": "Realtime AI Voice Assistant",
+  "description": "A Progressive Web App (PWA) that allows you to have a live, real-time voice conversation with an AI assistant powered by OpenAI. It features live transcriptions, voice selection, and local conversation history.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
