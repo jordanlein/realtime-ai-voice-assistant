@@ -68,7 +68,7 @@ const SavedConversations: React.FC<SavedConversationsProps> = ({ conversations }
                     <span className="font-semibold">{new Date(convo.timestamp).toLocaleString()}</span>
                     <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
                 </button>
-                {isExpanded && (
+                <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isExpanded ? 'max-h-96' : 'max-h-0'}`}>
                     <div className="p-4 space-y-4">
                     <div className="flex space-x-4">
                         {convo.userAudioUrl && (
@@ -92,7 +92,7 @@ const SavedConversations: React.FC<SavedConversationsProps> = ({ conversations }
                         ))}
                     </div>
                     </div>
-                )}
+                </div>
                 </div>
             )
           })}

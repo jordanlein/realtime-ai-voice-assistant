@@ -10,6 +10,8 @@ export interface SavedConversation {
   id: number;
   timestamp: Date;
   transcript: TranscriptEntry[];
+  userAudio?: Blob;
+  assistantAudio?: Blob;
   userAudioUrl?: string;
   assistantAudioUrl?: string;
 }

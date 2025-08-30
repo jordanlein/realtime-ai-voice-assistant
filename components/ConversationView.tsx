@@ -44,7 +44,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ status, transcript,
       >
         {transcript.length > 0 ? (
           transcript.map((entry, index) => (
-            <div key={index}>
+            <div key={index} className="animate-fade-in">
               <p className={entry.speaker === 'user' ? 'text-blue-300' : 'text-teal-200'}>
                 <span className="font-bold capitalize">{entry.speaker}:</span> {entry.text}
               </p>
@@ -66,7 +66,13 @@ const ConversationView: React.FC<ConversationViewProps> = ({ status, transcript,
         `}
       >
         <span className="sr-only">{buttonText[status]}</span>
-        {isBroadcasting ? <StopIcon className="w-10 h-10" /> : <MicIcon className="w-10 h-10" />}
+        {status === 'connecting' ? (
+          <div className="w-10 h-10 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
+        ) : isBroadcasting ? (
+          <StopIcon className="w-10 h-10" />
+        ) : (
+          <MicIcon className="w-10 h-10" />
+        )}
         {status === 'active' && (
             <span className="absolute h-full w-full rounded-full bg-red-500 animate-ping opacity-75"></span>
         )}
