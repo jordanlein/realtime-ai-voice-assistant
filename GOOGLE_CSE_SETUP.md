@@ -40,11 +40,4 @@ Make sure this key is correct and has the "Custom Search API" enabled in your Go
 
 ### API Limits
 
-*   **Free tier:** 100 searches per day.
-*   **Paid tier:** $5 per 1000 searches.
-
-## API Limits
-
-- Free tier: 100 searches per day
-- Paid tier: $5 per 1000 searches
-- Your API key: AIzaSyA2oWjwRMziUGrhpebGmVZLol2EnfVDSz8 
+The Custom Search JSON API has a free quota of 100 search queries per day. For more information, see the [API pricing page](https://developers.google.com/custom-search/v1/overview#pricing).
